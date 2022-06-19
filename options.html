@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><title>Copy & Paste Tabs Extension Options</title></head>
+<link rel="stylesheet" href="optionsCSS.css">
+<body>
+
+    <div class="Head"> 
+        <img src="/images/CopyLink_128.png">
+        <h1 style="font-size: 2.5em">Copy & Paste Tabs Extension</h1>
+        <h2 style="font-size: 2em">Options Page</h2>
+    </div>
+    <div class="Settings"> 
+        <h3>Copy Behavior</h3>
+            <input type="checkbox" id="pinned" name="pinned" value="pinned">
+            <label for="pinned"> Copy Ignore pinned tabs</label><br>
+            <input type="checkbox" id="selected" name="selected" value="selected">
+            <label for="selected"> Copy selected tabs only</label><br>
+            <sup>Select tabs by holding Ctrl then click on the tabs you want to select.</sup>
+
+        <br><br>
+        <h3>Paste Mode</h3>
+        <form name="PasteModeForm">
+            <input type="radio" id="Smart_Mode" name="PasteModeForm_Radios" value="Smart">
+            <label for="URLs_Titles">Smart Mode</label><br>
+            <span style="font-size:smaller;">
+                Extract URLs from text. But it only works with URLs that start with 
+                <b>https://</b>, <b>http://</b>, <b>ftp://</b>, <b>mailto://</b>, <b>file://</b>, <b>chrome://</b>, <b>ssh://</b> 
+                and any URLs that do not start like this will not be detected.
+            </span><br>
+            <input type="radio" id="Simple_Mode" name="PasteModeForm_Radios" value="Simple">
+            <label for="Simple_Mode">Simple Mode</label><br>
+            <span style="font-size:smaller;">
+                Treat every line as one URL without checking if it is one or not.
+            </span><br>
+        </form>
+
+        <br>
+        <h3>Copy Format</h3>
+            <form name="copyFormatForm">
+                <input type="radio" id="URLs" name="Copy_Format_Radios" value="URLs">
+                <label for="URLs">URLs</label><br>
+                <input type="radio" id="URLs_Titles" name="Copy_Format_Radios" value="URLs_Titles">
+                <label for="URLs_Titles">URLs and Titles</label><br>
+              </form>
+    </div>
+
+<div class="Settings"> 
+    <h3>Contact</h3>
+    Offer suggestions or report bugs at: aradous.dev@gmail.com
+</div>
+<script src="options.js"></script>
+</body>
+</html>

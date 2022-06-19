@@ -1,0 +1,56 @@
+body {
+    background-color:#E7E9EB;
+}
+
+.Head {
+    font-family: Inter,sans-serif;
+    letter-spacing: -.8px;
+
+    text-align: center; 
+
+    background-color: #fff;
+    border: 2px solid #000;
+
+    margin: auto;
+    width: 60%;
+    padding: 10px;
+
+    margin-bottom: 10px;
+
+}
+
+.Settings {
+    font-family: Inter,sans-serif;
+    letter-spacing: -.8px;
+    font-size: 1.7em;
+
+    background-color: #fff;
+    border: 2px solid #000;
+
+    margin: auto;
+    width: 60%;
+    padding: 10px;
+
+    margin-bottom: 10px;
+}
+
+.Settings h3{
+    margin: 0em 0em 0.3em 0em
+}
+
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: 1.7em;
+  height: 1.7rem;
+  accent-color: #06f;
+
+  vertical-align: middle;
+}
+
+.Settings label{
+    vertical-align: middle;
+}
+
+
+
