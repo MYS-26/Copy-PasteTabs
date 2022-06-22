@@ -9,7 +9,7 @@ function CopyURLtoClipboard(OptionsArray){
 
   chrome.tabs.query(queryOptions).then(data =>{
     let tempURL = "";
-    if(CopyFormat == 'URLs')
+    if(CopyFormat == 'URLs' || CopyFormat == null)
       for (let i = 0; i < data.length; i++)
         tempURL = tempURL + data[i].url + "\n";
     else 
