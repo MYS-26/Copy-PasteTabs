@@ -11,6 +11,8 @@
     </div>
     <div class="Settings"> 
         <h3>Copy Behavior</h3>
+            <input type="checkbox" id="allWindows" name="allWindows" value="allWindows">
+            <label for="allWindows"> Copy tabs from all opened windows</label><br>
             <input type="checkbox" id="pinned" name="pinned" value="pinned">
             <label for="pinned"> Copy Ignore pinned tabs</label><br>
             <input type="checkbox" id="selected" name="selected" value="selected">
@@ -41,12 +43,20 @@
                 <label for="URLs">URLs</label><br>
                 <input type="radio" id="URLs_Titles" name="Copy_Format_Radios" value="URLs_Titles">
                 <label for="URLs_Titles">URLs and Titles</label><br>
+                <input type="radio" id="HTML_URL" name="Copy_Format_Radios" value="HTML_URL">
+                <label for="HTML_URL">HTML [Anchor Tab URL]</label><br>
+                <input type="radio" id="HTML_Title" name="Copy_Format_Radios" value="HTML_Title">
+                <label for="HTML_Title">HTML [Anchor Tab Title]</label><br>
+                <input type="radio" id="JSON" name="Copy_Format_Radios" value="JSON">
+                <label for="JSON">JSON</label><br>
               </form>
     </div>
 
 <div class="Settings"> 
     <h3>Contact</h3>
     Offer suggestions or report bugs at: aradous.dev@gmail.com
+    <br/><br/>
+    <a href="https://buymeacoffee.com/aradous.dev" style="color: #06f;">Buy me a Coffee</a>
 </div>
 <script src="options.js"></script>
 </body>

@@ -1,4 +1,11 @@
 //Extensions Behaviour
+chrome.storage.sync.get(['allWindows']).then(
+    data => {
+                if(data.allWindows == true)
+                document.getElementById('allWindows').checked = true;  
+            }
+     );
+
 chrome.storage.sync.get(['ignorePinned']).then(
     data => {
                 if(data.ignorePinned == true)
@@ -15,8 +22,15 @@ chrome.storage.sync.get(['selectedTabs']).then(
 
 
 document.addEventListener('DOMContentLoaded', function() {
+    let allWindows = document.getElementById('allWindows');
     let Pinned = document.getElementById('pinned');
     let Selected = document.getElementById('selected');
+
+    allWindows.addEventListener('change', function(){
+        if(allWindows.checked == true)
+            chrome.storage.sync.set({copyFromAllWindows: true})
+        else chrome.storage.sync.set({copyFromAllWindows: false})
+    });
     
     Pinned.addEventListener('change', function(){
         if(Pinned.checked == true)
@@ -67,7 +81,10 @@ chrome.storage.sync.get(['CopyFormat']).then(
     data => {   
                 if(data.CopyFormat == null || data.CopyFormat == "URLs") 
                     FormatRadio[0].checked = true;
-                else FormatRadio[1].checked = true;
+                else if(data.CopyFormat == "URLs_Titles") FormatRadio[1].checked = true;
+                else if(data.CopyFormat == "HTML_URL") FormatRadio[2].checked = true;
+                else if(data.CopyFormat == "HTML_Title") FormatRadio[3].checked = true;
+                else if(data.CopyFormat == "JSON") FormatRadio[4].checked = true;
             }
      );
 
@@ -78,5 +95,17 @@ FormatRadio[0].addEventListener('change', function(){
 
 FormatRadio[1].addEventListener('change', function(){
     chrome.storage.sync.set({CopyFormat: "URLs_Titles"})
+});
+
+FormatRadio[2].addEventListener('change', function(){
+    chrome.storage.sync.set({CopyFormat: "HTML_URL"})
+});
+
+FormatRadio[3].addEventListener('change', function(){
+    chrome.storage.sync.set({CopyFormat: "HTML_Title"})
+});
+
+FormatRadio[4].addEventListener('change', function(){
+    chrome.storage.sync.set({CopyFormat: "JSON"})
 });
 //-------------------------------------------------------------------------
