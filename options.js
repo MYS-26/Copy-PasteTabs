@@ -1,7 +1,7 @@
 //Extensions Behaviour
-chrome.storage.sync.get(['allWindows']).then(
+chrome.storage.sync.get(['copyFromAllWindows']).then(
     data => {
-                if(data.allWindows == true)
+                if(data.copyFromAllWindows == true)
                 document.getElementById('allWindows').checked = true;  
             }
      );
