@@ -1,7 +1,7 @@
 {
     "name": "Copy & Paste Tabs",
     "description": "With One Button Click. Copy all URLs from the current window tabs. And Paste to open a list of URLs in the browser.",
-    "version": "2.0.1",
+    "version": "2.1.0",
     "manifest_version": 3,
 
     "permissions": ["tabs", "clipboardRead", "clipboardWrite", "storage"], 

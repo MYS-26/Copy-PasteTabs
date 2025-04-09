@@ -49,7 +49,20 @@
                 <label for="HTML_Title">HTML [Anchor Tab Title]</label><br>
                 <input type="radio" id="JSON" name="Copy_Format_Radios" value="JSON">
                 <label for="JSON">JSON</label><br>
+                <input type="radio" id="Custom" name="Copy_Format_Radios" value="Custom">
+                <label for="Custom">Custom</label><br>
               </form>
+
+              <div class="well" id="customFormatWell">
+                <b>Custom format</b><br/> 
+                Customize your format by entering your desired template in the textarea below.
+                <ul>
+                    <li>Use the variables <code>$title</code> and <code>$url</code> to dynamically include the title and URL in your template.</li>
+                    <li>Add <code>&lt;br/&gt</code> tags to create line breaks wherever needed.</li>
+                  </ul>
+                    <textarea rows="4" cols="50" id="textArea"></textarea>
+                    Example: $title&lt;br/&gt$url&lt;br/&gt
+              </div>
     </div>
 
 <div class="Settings"> 

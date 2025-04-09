@@ -75,7 +75,9 @@ ModesRadio[1].addEventListener('change', function(){
 
 
 //Copy Format
-let FormatRadio = document.copyFormatForm.Copy_Format_Radios;
+const FormatRadio = document.copyFormatForm.Copy_Format_Radios;
+const FormatForm = document.forms['copyFormatForm'];
+const customWell = document.getElementById('customFormatWell');
 
 chrome.storage.sync.get(['CopyFormat']).then(
     data => {   
@@ -85,27 +87,35 @@ chrome.storage.sync.get(['CopyFormat']).then(
                 else if(data.CopyFormat == "HTML_URL") FormatRadio[2].checked = true;
                 else if(data.CopyFormat == "HTML_Title") FormatRadio[3].checked = true;
                 else if(data.CopyFormat == "JSON") FormatRadio[4].checked = true;
+                else if(data.CopyFormat == "Custom") {
+                    FormatRadio[5].checked = true;
+                    customWell.style.display = 'block'
+                }
             }
      );
 
+chrome.storage.sync.get(['CustomTemplate']).then(
+    data => { 
+                if(data.CustomTemplate != null){
+                    const customWellTextArea = document.getElementById('textArea');
+                    customWellTextArea.value = data.CustomTemplate; 
+                }         
+    });
 
-FormatRadio[0].addEventListener('change', function(){
-    chrome.storage.sync.set({CopyFormat: "URLs"})
+FormatForm.addEventListener('change', function(event) {
+    if (event.target.name === 'Copy_Format_Radios') {
+        chrome.storage.sync.set({CopyFormat: event.target.value})
+
+        if (event.target.value === "Custom")
+            customWell.style.display = 'block';
+        else customWell.style.display = 'none';
+
+
+    }
 });
 
-FormatRadio[1].addEventListener('change', function(){
-    chrome.storage.sync.set({CopyFormat: "URLs_Titles"})
+customWell.addEventListener('change', function(event) {
+    chrome.storage.sync.set({CustomTemplate: event.target.value})
 });
 
-FormatRadio[2].addEventListener('change', function(){
-    chrome.storage.sync.set({CopyFormat: "HTML_URL"})
-});
-
-FormatRadio[3].addEventListener('change', function(){
-    chrome.storage.sync.set({CopyFormat: "HTML_Title"})
-});
-
-FormatRadio[4].addEventListener('change', function(){
-    chrome.storage.sync.set({CopyFormat: "JSON"})
-});
 //-------------------------------------------------------------------------

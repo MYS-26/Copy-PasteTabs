@@ -1,60 +1,56 @@
-function CopyURLtoClipboard(OptionsArray){
+async function CopyURLtoClipboard(){
+  const Options = await chrome.storage.sync.get(['copyFromAllWindows', 'ignorePinned', 'selectedTabs', 'CopyFormat']);
   let queryOptions = {};
 
-  let copyFromAllWindows = OptionsArray[0].copyFromAllWindows; console.log(copyFromAllWindows);
-  let ignorePinned = OptionsArray[1].ignorePinned;
-  let Selected = OptionsArray[2].selectedTabs;
-  let CopyFormat = OptionsArray[3].CopyFormat;
-  if(copyFromAllWindows == false || copyFromAllWindows == null) queryOptions["lastFocusedWindow"] = true;
-  if(ignorePinned == true) queryOptions["pinned"] = false;
-  if(Selected == true) {queryOptions["highlighted"] = true; queryOptions["lastFocusedWindow"] = true;}
-
+  if(Options.copyFromAllWindows == false || Options.copyFromAllWindows == null) queryOptions["lastFocusedWindow"] = true;
+  if(Options.ignorePinned == true) queryOptions["pinned"] = false;
+  if(Options.selectedTabs == true) {queryOptions["highlighted"] = true; queryOptions["lastFocusedWindow"] = true;}
+        
   let popup = document.getElementById("CopyPopup");
-
-  chrome.tabs.query(queryOptions).then(data =>{ 
-    if (!Array.isArray(data) || !data.length) {
+        
+  const tabsQueryResult = await chrome.tabs.query(queryOptions);
+  if (!Array.isArray(tabsQueryResult) || !tabsQueryResult.length) {
       popup.innerHTML = "0 URLs Copied"
       popup.classList.toggle("show");
       return;
-    }
-    let tempURL = "";
-    if(CopyFormat == 'URLs' || CopyFormat == null)
-      for (let i = 0; i < data.length; i++)
-        tempURL = tempURL + data[i].url + "\n";
-    else if(CopyFormat == 'URLs_Titles')
-      for (let i = 0; i < data.length; i++)
-        tempURL = tempURL + data[i].title + "\n" + data[i].url + "\n\n";
-    else if(CopyFormat == 'HTML_URL')
-      for (let i = 0; i < data.length; i++)
-        tempURL = tempURL + `<a href="${[data[i].url]}">${[data[i].url]}</a>` + "\n";
-    else if(CopyFormat == 'HTML_Title')
-      for (let i = 0; i < data.length; i++)
-        tempURL = tempURL + `<a href="${[data[i].url]}">${[data[i].title]}</a>` + "\n";
-    else if(CopyFormat == 'JSON'){
-      tempURL = "["
-      for (let i = 0; i < data.length-1; i++)
-        tempURL = tempURL + `{"url":"${[data[i].url]}","title":"${[data[i].title]}"}` + ",\n";
-      tempURL = tempURL + `{"url":"${[data[data.length-1].url]}","title":"${[data[data.length-1].title]}"}]` + "\n";
-    }
-
-    
-    if(data.length == 1)
-      popup.innerHTML = "1 URL Copied"
-    else
-      popup.innerHTML = data.length + " URLs Copied"
+  }
+  
+  let tempURL = ""; //Need changing into Switch Statement instead of else if
+  if(Options.CopyFormat == 'URLs' || Options.CopyFormat == null)
+    for (let i = 0; i < tabsQueryResult.length; i++)
+      tempURL = tempURL + tabsQueryResult[i].url + "\n";
+  else if(Options.CopyFormat == 'URLs_Titles')
+    for (let i = 0; i < tabsQueryResult.length; i++)
+        tempURL = tempURL + tabsQueryResult[i].title + "\n" + tabsQueryResult[i].url + "\n\n";
+  else if(Options.CopyFormat == 'HTML_URL')
+    for (let i = 0; i < tabsQueryResult.length; i++)
+      tempURL = tempURL + `<a href="${[tabsQueryResult[i].url]}">${[tabsQueryResult[i].url]}</a>` + "\n";
+  else if(Options.CopyFormat == 'HTML_Title')
+    for (let i = 0; i < tabsQueryResult.length; i++)
+      tempURL = tempURL + `<a href="${[tabsQueryResult[i].url]}">${[tabsQueryResult[i].title]}</a>` + "\n";
+  else if(Options.CopyFormat == 'JSON'){
+        tempURL = "["
+        for (let i = 0; i < tabsQueryResult.length-1; i++)
+          tempURL = tempURL + `{"url":"${[tabsQueryResult[i].url]}","title":"${[tabsQueryResult[i].title]}"}` + ",\n";
+          tempURL = tempURL + `{"url":"${[tabsQueryResult[tabsQueryResult.length-1].url]}","title":"${[tabsQueryResult[tabsQueryResult.length-1].title]}"}]` + "\n";
+        }
+  else if(Options.CopyFormat == 'Custom'){
+    const formatTemplate = await chrome.storage.sync.get(['CustomTemplate']);
+    if(formatTemplate.CustomTemplate)
+    for (let i = 0; i < tabsQueryResult.length; i++)
+      tempURL = tempURL + formatTemplate.CustomTemplate.replaceAll("$title", tabsQueryResult[i].title).replaceAll("$url", tabsQueryResult[i].url).replaceAll("<br/>", "\n");
+    else tempURL = "Error: Custom format template is empty. Please check the options page to configure it.";
+  }
+        
+            
+  if(tabsQueryResult.length == 1)
+    popup.innerHTML = "1 URL Copied"
+  else
+    popup.innerHTML = tabsQueryResult.length + " URLs Copied"
     popup.classList.toggle("show");
-
-    navigator.clipboard.writeText(tempURL);
-    
-  }) 
-
-}
-
-async function GetCopyOptions(){
-  return await Promise.all([chrome.storage.sync.get(['copyFromAllWindows']), 
-                            chrome.storage.sync.get(['ignorePinned']), 
-                            chrome.storage.sync.get(['selectedTabs']), 
-                            chrome.storage.sync.get(['CopyFormat'])]);
+        
+  navigator.clipboard.writeText(tempURL); 
+        
 }
 
 function GetClipboardContent(){
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let Paste = document.getElementById('PasteURL');
     
     Copy.addEventListener('click', function(){
-        GetCopyOptions().then(data => CopyURLtoClipboard(data))
+        CopyURLtoClipboard();
         setTimeout(function(){window.close();}, 3000);
 
     });
