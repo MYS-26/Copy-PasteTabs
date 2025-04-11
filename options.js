@@ -1,121 +1,147 @@
-//Extensions Behaviour
-chrome.storage.sync.get(['copyFromAllWindows']).then(
+// ==== Copy Behavior ====
+//Initialize copy behavior settings from storage and update the UI.
+chrome.storage.sync.get(['copyFromAllWindows', 'ignorePinned', 'selectedTabs', 'decodeUnicode', 'copyAsMIMEtype']).then(
     data => {
-                if(data.copyFromAllWindows == true)
-                document.getElementById('allWindows').checked = true;  
-            }
-     );
+        if(data.copyFromAllWindows)
+            document.getElementById('allWindows').checked = true; 
+        if(data.ignorePinned)
+            document.getElementById('pinned').checked = true;  
+        if(data.selectedTabs)
+            document.getElementById('selected').checked = true; 
+        if(data.decodeUnicode || data.decodeUnicode == null)
+            document.getElementById('decodeUnicode').checked = true;
+        if(data.copyAsMIMEtype)
+            document.getElementById('copyAsMIMEtype').checked = true;
+    }
+);
 
-chrome.storage.sync.get(['ignorePinned']).then(
-    data => {
-                if(data.ignorePinned == true)
-                document.getElementById('pinned').checked = true;  
-            }
-     );
-
-chrome.storage.sync.get(['selectedTabs']).then(
-    data => {
-                if(data.selectedTabs == true)
-                document.getElementById('selected').checked = true;  
-            }
-    );
-
-
+//Attach event listeners to copy behavior checkboxes after the DOM is loaded.
 document.addEventListener('DOMContentLoaded', function() {
-    let allWindows = document.getElementById('allWindows');
-    let Pinned = document.getElementById('pinned');
-    let Selected = document.getElementById('selected');
+    const allWindowsCheckbox = document.getElementById('allWindows');
+    const pinnedCheckbox = document.getElementById('pinned');
+    const selectedCheckbox = document.getElementById('selected');
+    const decodeUnicodeCheckbox = document.getElementById('decodeUnicode');
+    const copyAsMIMEtypeCheckbox = document.getElementById('copyAsMIMEtype');
 
-    allWindows.addEventListener('change', function(){
-        if(allWindows.checked == true)
-            chrome.storage.sync.set({copyFromAllWindows: true})
-        else chrome.storage.sync.set({copyFromAllWindows: false})
+    //store checkboxs state to storage upon change
+    allWindowsCheckbox.addEventListener('change', () => {
+        chrome.storage.sync.set({copyFromAllWindows: allWindowsCheckbox.checked});
     });
     
-    Pinned.addEventListener('change', function(){
-        if(Pinned.checked == true)
-            chrome.storage.sync.set({ignorePinned: true})
-        else chrome.storage.sync.set({ignorePinned: false})
+    pinnedCheckbox.addEventListener('change', () => {
+        chrome.storage.sync.set({ignorePinned: pinnedCheckbox.checked});
     });
 
-    Selected.addEventListener('change', function(){
-        if(Selected.checked == true)
-            chrome.storage.sync.set({selectedTabs: true})
-        else chrome.storage.sync.set({selectedTabs: false})
+    selectedCheckbox.addEventListener('change', () => {
+        chrome.storage.sync.set({selectedTabs: selectedCheckbox.checked})
     });
 
+    decodeUnicodeCheckbox.addEventListener('change', () => {
+        chrome.storage.sync.set({decodeUnicode: decodeUnicodeCheckbox.checked})
+    });
+
+    copyAsMIMEtypeCheckbox.addEventListener('change', () => {
+        chrome.storage.sync.set({copyAsMIMEtype: copyAsMIMEtypeCheckbox.checked})
+    });
 });
 //-------------------------------------------------------------------------
 
-//Paste Mode
-
-let ModesRadio = document.PasteModeForm.PasteModeForm_Radios;
-
+// ==== Paste Mode ====
+const pasteModesRadios = document.PasteModeForm.PasteModeForm_Radios;
+//Initialize paste mode from storage and update the UI. Defaults to "Smart".
 chrome.storage.sync.get(['PasteMode']).then(
-    data => {   
-                if(data.PasteMode == null || data.PasteMode == "Smart") 
-                    ModesRadio[0].checked = true;
-                else ModesRadio[1].checked = true;
+    data => { 
+                //Get the stored paste mode, defaulting to "Smart" if no value is found (null or undefined).
+                const pasteModeToSet = data.PasteMode || "Smart";
+
+                if(pasteModeToSet === "Smart") 
+                    pasteModesRadios[0].checked = true;
+                else pasteModesRadios[1].checked = true;
 
             }
      );
 
 
-ModesRadio[0].addEventListener('change', function(){
-    chrome.storage.sync.set({PasteMode: "Smart"})
-    
-    chrome.storage.sync.get(['PasteMode']).then(data => console.log(data.PasteMode ))
+//Store paste mode radio buttons state to storage upon change.
+pasteModesRadios[0].addEventListener('change', function(){
+    chrome.storage.sync.set({PasteMode: "Smart"});
 });
 
-ModesRadio[1].addEventListener('change', function(){
-    chrome.storage.sync.set({PasteMode: "Simple"})
-    
-    chrome.storage.sync.get(['PasteMode']).then(data => console.log(data.PasteMode ))
+pasteModesRadios[1].addEventListener('change', function(){
+    chrome.storage.sync.set({PasteMode: "Simple"});
 });
+//-------------------------------------------------------------------------
 
-
-//Copy Format
-const FormatRadio = document.copyFormatForm.Copy_Format_Radios;
-const FormatForm = document.forms['copyFormatForm'];
+// ==== Copy Format ====
+//Manages copy format settings
+const formatRadio = document.copyFormatForm.Copy_Format_Radios;
+const formatForm = document.forms['copyFormatForm'];
 const customWell = document.getElementById('customFormatWell');
 
+//Initialize copy format from storage and update the UI. Defaults to "URLs".
 chrome.storage.sync.get(['CopyFormat']).then(
-    data => {   
-                if(data.CopyFormat == null || data.CopyFormat == "URLs") 
-                    FormatRadio[0].checked = true;
-                else if(data.CopyFormat == "URLs_Titles") FormatRadio[1].checked = true;
-                else if(data.CopyFormat == "HTML_URL") FormatRadio[2].checked = true;
-                else if(data.CopyFormat == "HTML_Title") FormatRadio[3].checked = true;
-                else if(data.CopyFormat == "JSON") FormatRadio[4].checked = true;
-                else if(data.CopyFormat == "Custom") {
-                    FormatRadio[5].checked = true;
+    data => {
+                //Get the stored copy format, defaulting to "URLs" if no value is found (null or undefined).
+                const formatToSet = data.CopyFormat || "URLs"; 
+
+                if(formatToSet === "URLs") 
+                    formatRadio[0].checked = true;
+                else if(formatToSet === "URLs_Titles") formatRadio[1].checked = true;
+                else if(formatToSet === "HTML_URL") formatRadio[2].checked = true;
+                else if(formatToSet === "HTML_Title") formatRadio[3].checked = true;
+                else if(formatToSet === "JSON") formatRadio[4].checked = true;
+                else if(formatToSet === "Custom") {
+                    formatRadio[5].checked = true;
                     customWell.style.display = 'block'
                 }
             }
      );
 
+//Initialize custom template from storage.
 chrome.storage.sync.get(['CustomTemplate']).then(
     data => { 
-                if(data.CustomTemplate != null){
-                    const customWellTextArea = document.getElementById('textArea');
-                    customWellTextArea.value = data.CustomTemplate; 
+                if(data.CustomTemplate){
+                    document.getElementById('textArea').value = data.CustomTemplate; 
                 }         
     });
 
-FormatForm.addEventListener('change', function(event) {
+//store copy format radio buttons state to storage upon change.
+//And show/hide customwell according to selected format.
+formatForm.addEventListener('change', event => {
     if (event.target.name === 'Copy_Format_Radios') {
-        chrome.storage.sync.set({CopyFormat: event.target.value})
+        chrome.storage.sync.set({CopyFormat: event.target.value});
 
+    customWell.style.display = event.target.value === "Custom" ? 'block' : 'none';
+        /*
         if (event.target.value === "Custom")
             customWell.style.display = 'block';
-        else customWell.style.display = 'none';
+        else customWell.style.display = 'none';*/
 
 
     }
 });
 
-customWell.addEventListener('change', function(event) {
-    chrome.storage.sync.set({CustomTemplate: event.target.value})
+//Debounce function to limit the frequency of custom template saving.
+function debounce(func, waitTime){
+    let timer = null;
+    return (...args) => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+            func(...args)
+        }, waitTime)
+
+    };
+}
+
+const saveCustomTemplate = debounce((textInput) => {
+    chrome.storage.sync.set({CustomTemplate: textInput});
+}, 500)
+
+customWell.addEventListener('input', function(event) {
+    saveCustomTemplate(event.target.value);
 });
 
-//-------------------------------------------------------------------------
+/*
+customWell.addEventListener('change', function(event) {
+    chrome.storage.sync.set({CustomTemplate: event.target.value})
+});*/

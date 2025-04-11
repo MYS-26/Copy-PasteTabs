@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head><title>Copy & Paste Tabs Extension Options</title></head>
+<head><meta charset="UTF-8"><title>Copy & Paste Tabs Extension Options</title></head>
 <link rel="stylesheet" href="optionsCSS.css">
 <body>
 
@@ -14,25 +14,33 @@
             <input type="checkbox" id="allWindows" name="allWindows" value="allWindows">
             <label for="allWindows"> Copy tabs from all opened windows</label><br>
             <input type="checkbox" id="pinned" name="pinned" value="pinned">
-            <label for="pinned"> Copy Ignore pinned tabs</label><br>
+            <label for="pinned"> Ignore pinned tabs when copying</label><br>
             <input type="checkbox" id="selected" name="selected" value="selected">
-            <label for="selected"> Copy selected tabs only</label><br>
-            <sup>Select tabs by holding Ctrl then click on the tabs you want to select.</sup>
-
-        <br><br>
+            <label for="selected"> Copy only selected tabs</label><br>
+            <sup>Select tabs by holding Ctrl then click on the tabs you want to select.</sup><br>
+            <br/>
+        
+        <h3>Copy Output</h3>
+        <input type="checkbox" id="decodeUnicode" name="decodeUnicode" value="decodeUnicode">
+        <label for="decodeUnicode"> Decode Unicode characters</label><br>
+        <sup>Prevent website addresses with special characters (like é or ©) from being copied as unreadable code.<br/> (e.g., copying "example.com/café" as "example.com/caf%C3%A9").</sup><br>
+        <input type="checkbox" id="copyAsMIMEtype" name="copyAsMIMEtype" value="copyAsMIMEtype">
+        <label for="copyAsMIMEtype"> HTML MIME type</label><br>
+        <sup>Copy tabs URLs as clickable links instead of plain text when using HTML or Custom copy formats. This is useful for pasting into programs like Word or email.</sup>
+        <br/><br/>
         <h3>Paste Mode</h3>
         <form name="PasteModeForm">
             <input type="radio" id="Smart_Mode" name="PasteModeForm_Radios" value="Smart">
-            <label for="URLs_Titles">Smart Mode</label><br>
+            <label for="Smart_Mode">Smart Mode</label><br>
             <span style="font-size:smaller;">
-                Extract URLs from text. But it only works with URLs that start with 
-                <b>https://</b>, <b>http://</b>, <b>ftp://</b>, <b>mailto://</b>, <b>file://</b>, <b>chrome://</b>, <b>ssh://</b> 
-                and any URLs that do not start like this will not be detected.
+                Extracts and opens URLs from text. Supports standard web links (https, http, ftp, mailto, file, ssh) 
+                and non-standard URLs like localhost and Chrome-specific addresses. 
+                URLs without a protocol (e.g., example.com, www.example.com) won't be detected.
             </span><br>
             <input type="radio" id="Simple_Mode" name="PasteModeForm_Radios" value="Simple">
             <label for="Simple_Mode">Simple Mode</label><br>
             <span style="font-size:smaller;">
-                Treat every line as one URL without checking if it is one or not.
+                Treats each line as a URL and opens it without validating whether it's a URL.
             </span><br>
         </form>
 
@@ -69,7 +77,7 @@
     <h3>Contact</h3>
     Offer suggestions or report bugs at: aradous.dev@gmail.com
     <br/><br/>
-    <a href="https://buymeacoffee.com/aradous.dev" style="color: #06f;">Buy me a Coffee</a>
+    <a href="https://buymeacoffee.com/aradous.dev" target="_blank" style="color: #06f;">Buy me a Coffee</a>
 </div>
 <script src="options.js"></script>
 </body>
