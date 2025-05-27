@@ -1,0 +1,26 @@
+# Changelog
+
+## [2.5.0]
+-Refactored code.
+-added comments.
+### Added
+-Unicode decoding.
+-Copying as MIME type.
+
+## [2.1.0]
+### Added
+- Custom format.
+
+## [2.0.1]
+### Fixed 
+-  fixed a issue where the 'Copy from all windows' checkbox always appeared unselected, despite its actual state.
+
+## [2.0.0]
+### Added
+- HTML and JSON formats.
+- option to 'Copy from all windows'.
+
+## [1.0.1]
+### Fixed
+- Corrected a minor bug in `popup.js` where `CopyURLtoClipboard(OptionsArray)` defaulted to 'URLs and Titles' instead of 'URLs only' when options were uninitialized after the first installation.
+
