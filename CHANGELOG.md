@@ -1,4 +1,7 @@
 # Changelog
+## [2.5.1]
+### Fixed
+- a bug in the helper function decodeIfNeeded inside the function formatURLs() where URLs that have non-UTF-8 characters will throw a URIError: malformed URI error and halt the program.
 
 ## [2.5.0]
 -Refactored code.

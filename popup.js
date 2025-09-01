@@ -64,7 +64,22 @@ async function CopyURLtoClipboard(){
 function formatURLs(tabs, decodeUnicode, CopyFormat, customTemplate){
   //default to true if decodeUnicode null or undefined.
   const shouldDecode = decodeUnicode ?? true;
-  const decodeIfNeeded = (url) => (shouldDecode ? decodeURI(url) : url);
+  //const decodeIfNeeded = (url) => (shouldDecode ? decodeURI(url) : url); This causes a bug where the program halts when the URL has non-UTF-8 characters.
+
+  const decodeIfNeeded = (url) => {
+    if (!shouldDecode) return url;
+
+    try{
+      return decodeURI(url)
+    } catch(e){
+      if(e instanceof URIError){
+        return url;
+      }
+      throw e;
+    }
+
+  }
+
   if(CopyFormat === 'URLs' || CopyFormat == null)
     return tabs.map(tab => `${decodeIfNeeded(tab.url)}`).join("\n");
   else if(CopyFormat === 'URLs_Titles')
@@ -303,14 +318,3 @@ async function SmartOpenUrlsInClipboard_Improved(){
   }
 }
 */
-
-
-
-
-
-
-
-
-
-
-
