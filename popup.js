@@ -3,16 +3,21 @@
  * apply the chosen formatting,
  * then write the results to the clipboard.
  */
-async function CopyURLtoClipboard(){
+async function CopyURLtoClipboard(AltKey){
   //Retrieve stored user preferences.
   const Options = await chrome.storage.sync.get(['copyFromAllWindows', 'ignorePinned', 'selectedTabs', 'decodeUnicode', 'copyAsMIMEtype', 'CopyFormat', 'CustomTemplate']);
+
+  // Hold Alt key to toggle copyFromAllWindows setting
+  if(AltKey === true)
+    Options.copyFromAllWindows = !Options.copyFromAllWindows
+
 
   //Create queryOptions based on stored user preferences.
   let queryOptions = {};
   if(Options.copyFromAllWindows === false || Options.copyFromAllWindows == null) queryOptions["lastFocusedWindow"] = true;
   if(Options.ignorePinned === true) queryOptions["pinned"] = false;
   if(Options.selectedTabs === true) {queryOptions["highlighted"] = true; queryOptions["lastFocusedWindow"] = true;}
-  
+
   //Retrieve the popup element used to display the number of copied URLs.
   const popup = document.getElementById("CopyPopup");
   
@@ -205,8 +210,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let Paste = document.getElementById('PasteURL');
     
     //Copy button code
-    Copy.addEventListener('click', function(){
-        CopyURLtoClipboard();
+    Copy.addEventListener('click', (e) => {
+
+        CopyURLtoClipboard(e.altKey);
         setTimeout(function(){window.close();}, 3000); //set a timeout to close the current popup window after 3000 milliseconds (3 seconds).
     });
 
@@ -220,101 +226,3 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     });
 });
-
-
-
-
-/**
- * Retrieves the current clipboard content as a string.
- * 
- * This function creates a temporary textarea element to facilitate clipboard pasting
- * using `document.execCommand("Paste")`. 
- * This function not needed asnymore beacuse the Clipboard API (`navigator.clipboard.readText()`) exist.
- * and document.execCommand() is deprecated.
- * 
- * @returns {string} The clipboard contents as a string.
- 
-function GetClipboardContent(){
-  //Create a temporary textarea element to access clipboard content
-  let tempTextArea = document.createElement("textarea");
-  //Position the textarea off-screen
-  tempTextArea.style = "position: absolute; left: -1000px; top: -1000px";
-  //Append the textarea to the document body
-  document.body.appendChild(tempTextArea);
-  tempTextArea.contentEditable = true;
-  //Focus the textarea to enable clipboard pasting
-  tempTextArea.focus(); 
-  //Execute the paste command to retrieve clipboard contents
-  document.execCommand("Paste");
-
-  //Extract the pasted text from the textarea
-  let clipboardContents = tempTextArea.value;
-  //Remove the temporary textarea from the DOM
-  document.body.removeChild(tempTextArea);
-  //Return the retrieved clipboard content
-  return clipboardContents;
-}
-*/
-
-
-/**
- * Applies the selected formatting option to an array of tab objects.
- *
- * @param {Array<chrome.tabs.Tab>} tabs - An array of Chrome tab objects.
- * @param {string} CopyFormat - The selected formatting option ('URLs', 'URLs_Titles', etc.).
- * @param {string} customTemplate - The custom formatting template (if 'Custom' format is selected).
- * @returns {string} The formatted string of URLs and/or titles.
- 
-function formatURLsOLD(tabs, CopyFormat, customTemplate){
-  //TODO: Refactor to a switch statement for better readability.
-  if(CopyFormat == 'URLs' || CopyFormat == null)
-    return tabs.map(tab => tab.url).join("\n");
-  else if(CopyFormat == 'URLs_Titles')
-    return tabs.map(tab => `${tab.title}\n${tab.url}\n`).join("\n");
-  else if(CopyFormat == 'HTML_URL')
-    return tabs.map(tab => `<a href="${tab.url}">${tab.url}</a>`).join("\n");
-  else if(CopyFormat == 'HTML_Title')
-    return tabs.map(tab => `<a href="${tab.url}">${tab.title}</a>`).join("\n");
-  else if(CopyFormat == 'JSON')
-    return JSON.stringify(tabs.map(tab => ({ url: tab.url, title: tab.title })), null, 2);  
-  else if(CopyFormat == 'Custom'){
-    if(customTemplate)
-      return tabs.map(tab => 
-                        customTemplate.replaceAll("$title", tab.title).replaceAll("$url", tab.url).replaceAll("<br/>", "\n")).join("");
-    else return "Error: Custom format template is empty. Please check the options page to configure it.";
-  }
-
-}
-*/
-
-/*
-async function SmartOpenUrlsInClipboard_Improved(){
-  const clipboardContent = await navigator.clipboard.readText();
-  let urls = [];
-  // Regex pattern to match URLs from clipboard text.
-  const URL_RegEx = /(\b(https?|ftp|file|chrome|ssh|mailto):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;'()]*[\-A-Z0-9+&@#\/%=~_|)])/ig;
-
-  clipboardContent.split(/\s+/).map(trimExtraPunctuation).forEach(potentialUrl => {
-    // First attempt: Directly validate URL using built-in parsing.
-    if(URL.canParse(potentialUrl)) urls.push(potentialUrl);
-    else{ 
-      // If direct parsing fails, apply regex extraction.
-      const regexMatches = potentialUrl.match(URL_RegEx);
-      if(regexMatches)
-        regexMatches.forEach(match =>{
-          if(URL.canParse(match)) urls.push(match); // Validate regex-captured matches before storing.
-      })
-    }
-  });
-
-  if(urls.length > 0){
-    urls.forEach(url => {
-      chrome.tabs.create({ url:url });
-    });
-  }
-  else{
-    let popup = document.getElementById("PastePopup");
-    popup.classList.toggle("show");
-  }
-}
-*/
