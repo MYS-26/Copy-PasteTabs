@@ -13,12 +13,13 @@
         <h3>Copy Behavior</h3>
             <input type="checkbox" id="allWindows" name="allWindows" value="allWindows">
             <label for="allWindows"> Copy tabs from all opened windows</label><br>
-            <sup>Tip: Shortcut: You can also hold Alt while clicking Copy to toggle this setting on the fly.</sup><br>
+            <sup>Tip: Shortcut: You can also hold Alt while clicking Copy button to toggle this setting on the fly.</sup><br>
             <input type="checkbox" id="pinned" name="pinned" value="pinned">
             <label for="pinned"> Ignore pinned tabs when copying</label><br>
             <input type="checkbox" id="selected" name="selected" value="selected">
             <label for="selected"> Copy only selected tabs</label><br>
             <sup>Select tabs by holding Ctrl then click on the tabs you want to select.</sup><br>
+            <sup>Tip: Shortcut: You can also hold Ctrl while clicking Copy Button to toggle this setting on the fly.</sup><br>
             <br/>
         
         <h3>Copy Output</h3>
@@ -29,6 +30,7 @@
         <label for="copyAsMIMEtype"> HTML MIME type</label><br>
         <sup>Copy tabs URLs as clickable links instead of plain text when using HTML or Custom copy formats. This is useful for pasting into programs like Word or email.</sup>
         <br/><br/>
+
         <h3>Paste Mode</h3>
         <form name="PasteModeForm">
             <input type="radio" id="Smart_Mode" name="PasteModeForm_Radios" value="Smart">
@@ -44,6 +46,17 @@
                 Treats each line as a URL and opens it without validating whether it's a URL.
             </span><br>
         </form>
+        <br>
+
+        <h3>Paste Button Tooltip</h3>
+            <form name="paste-button-tooltip-form">
+                <input type="radio" id="tooltip_off" name="paste-button-tooltip-radio" value="off">
+                <label for="tooltip_off">Disabled</label><br>
+                <input type="radio" id="tooltip_count" name="paste-button-tooltip-radio" value="count">
+                <label for="tooltip_count">URL count only</label><br>
+                <input type="radio" id="tooltip_list" name="paste-button-tooltip-radio" value="list">
+                <label for="tooltip_list">URL count and preview list (up to 12)</label><br>
+            </form>
 
         <br>
         <h3>Copy Format</h3>

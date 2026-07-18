@@ -1,16 +1,26 @@
 /**
- * Copies active tabs URLs based on user-selected filters,
- * apply the chosen formatting,
- * then write the results to the clipboard.
+ * Formats and copies URLs of active browser tabs to the clipboard based on user settings,
+ * then triggers a UI popup confirming the count of copied URLs.
+ * 
+ * Supports on-the-fly setting overrides via keyboard modifiers on click:
+ * - **Alt Key**: Toggles whether to copy tabs from all windows or just the current window.
+ * - **Ctrl Key**: Toggles whether to copy only the currently selected tabs.
+ * 
+ * @async
+ * @param {MouseEvent} clickEvent - The click event that triggered the copy, used to detect Alt/Ctrl modifier keys.
  */
-async function CopyURLtoClipboard(AltKey){
+async function CopyURLtoClipboard(clickEvent){
   //Retrieve stored user preferences.
   const Options = await chrome.storage.sync.get(['copyFromAllWindows', 'ignorePinned', 'selectedTabs', 'decodeUnicode', 'copyAsMIMEtype', 'CopyFormat', 'CustomTemplate']);
 
   // Hold Alt key to toggle copyFromAllWindows setting
-  if(AltKey === true)
-    Options.copyFromAllWindows = !Options.copyFromAllWindows
+  if(clickEvent.altKey === true)
+    Options.copyFromAllWindows = !Options.copyFromAllWindows;
 
+  // Hold Ctrl key to toggle selectedTabs setting
+  if(clickEvent.ctrlKey === true)
+    Options.selectedTabs = !Options.selectedTabs;
+  
 
   //Create queryOptions based on stored user preferences.
   let queryOptions = {};
@@ -104,15 +114,42 @@ function formatURLs(tabs, decodeUnicode, CopyFormat, customTemplate){
   else return "Error: Invalid copy format."
 }
 
+/** 
+ * Retrieves URLs from the clipboard based on the user's saved extraction mode
+ * and opens them in new browser tabs. If no URLs are found, displays a feedback popup.
+ * 
+ * @async
+ * @throws {Error} Logs an error to the console if opening a specific tab fails.
+*/
+async function openUrlsInClipboard(){
+  const{ PasteMode = 'Smart' } = await chrome.storage.sync.get(['PasteMode']);
+  let URLsArray = [];
+
+  if(PasteMode === "Smart") URLsArray = await SmartExtractUrlsInClipboard();
+  else if(PasteMode === "Simple") URLsArray = await SimpleExtractUrlsInClipboard();
+
+  if(URLsArray.length > 0)
+    URLsArray.forEach(url => {
+      chrome.tabs.create({ url:url }).catch(err => console.error("Opening URL failed:", err));
+  });
+  else{
+    let popup = document.getElementById("PastePopup");
+    popup.classList.toggle("show");
+  }
+
+}
+
 /**
  * Splits clipboard content by whitespace (including newlines),
- * then opens each resulting string as a new tab without validating if they are valid URLs.
+ * then return an array of strings without validating if they are valid URLs.
+ * 
+ * @returns {Array<string>} An array of strings.
  */
-async function OpenUrlsInClipboard(){
+async function SimpleExtractUrlsInClipboard(){
   const clipboardContent = await navigator.clipboard.readText();
   const UrlsArray = clipboardContent.split(/[\r\n]+/).filter(url => url.trim() !== '');
-  for(let i = 0; i < UrlsArray.length; i++)
-    chrome.tabs.create({ url:UrlsArray[i] });
+
+  return UrlsArray;
 }
 
 /**
@@ -139,10 +176,11 @@ async function SmartOpenUrlsInClipboard(){
  * Extract and validate URLs from clipboard content.
  * - First, attempt direct parsing via whitespace splitting.
  * - If direct parsing fails, apply regex-based detection.
- * - Validate URLs using `URL.canParse()`, then open valid ones in new tabs.
- * - If no URLs are found, show the paste popup for user feedback.
+ * - Validate URLs using `URL.canParse().
+ * 
+ * @returns {Array<string>} An array of URLs.
  */
-async function SmartOpenUrlsInClipboard_Improved(){
+async function SmartExtractUrlsInClipboard(){
   const clipboardContent = await navigator.clipboard.readText();
   // Regex pattern to match URLs from clipboard text.
   const URL_RegEx = /(\b(https?|ftp|file|chrome|ssh|mailto):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;'()]*[\-A-Z0-9+&@#\/%=~_|)])/ig;
@@ -164,16 +202,7 @@ async function SmartOpenUrlsInClipboard_Improved(){
     }
   }
 
-
-  if(urls.length > 0){
-    urls.forEach(url => {
-      chrome.tabs.create({ url:url }).catch(err => console.error("Opening URL failed:", err));
-    });
-  }
-  else{
-    let popup = document.getElementById("PastePopup");
-    popup.classList.toggle("show");
-  }
+  return urls;
 }
 
 /**
@@ -204,25 +233,70 @@ function trimExtraPunctuation(url) {
   return url;
 }
 
+/**
+ * Sets the "PasteURL" button's tooltip (title attribute) to show the total number of
+ * URLs currently in the clipboard, with an optional listed preview.
+ * 
+ * @async
+ * @param {'list' | 'count'} tooltip_type - The formatting style of the tooltip. 
+ * Use "list" to append a truncated preview of the URLs, or "count" to show only the total count.
+ */
+async function PasteButton_toolTip(tooltip_type){
+
+  if(document.hasFocus() === false) return;
+
+  const UrlsArray = await SmartExtractUrlsInClipboard();
+  const PasteButton = document.getElementById("PasteURL");
+  let tooltip_text = "";
   
+  const total = UrlsArray.length;
+  const maxVisibleURLs = 12;
+
+  if(total === 0){
+    PasteButton.setAttribute("title", "0 URLs in Clipboard");
+    return;
+  }
+
+  tooltip_text = `${total} URLs in Clipboard`
+
+  if(tooltip_type === "list"){
+      const VisibleURLs = UrlsArray.slice(0, maxVisibleURLs).map(url => {
+       return url.length > 55 ? url.substring(0, 52) + "..." : url;
+      });
+
+      let URLsListText = VisibleURLs.join("\n");
+      if(total > maxVisibleURLs) URLsListText += `\n... and ${total - maxVisibleURLs} more`
+
+      tooltip_text = `${tooltip_text}\n${URLsListText}`
+  }
+
+
+
+  PasteButton.setAttribute("title", `${tooltip_text}`)
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     let Copy = document.getElementById('CopyURL');
     let Paste = document.getElementById('PasteURL');
     
     //Copy button code
-    Copy.addEventListener('click', (e) => {
+    Copy.addEventListener('click', (clickEvent) => {
 
-        CopyURLtoClipboard(e.altKey);
+        CopyURLtoClipboard(clickEvent);
         setTimeout(function(){window.close();}, 3000); //set a timeout to close the current popup window after 3000 milliseconds (3 seconds).
     });
 
     //Paste button code
     Paste.addEventListener('click', function() {
-        chrome.storage.sync.get(['PasteMode']).then(
-          data => {
-            if(data.PasteMode === "Simple") OpenUrlsInClipboard();
-            else SmartOpenUrlsInClipboard_Improved();
-            setTimeout(function(){window.close();}, 5000); //set a timeout to close the current popup window after 3000 milliseconds (3 seconds).
-        })
+    
+        openUrlsInClipboard();
+        setTimeout(function(){window.close();}, 5000); //set a timeout to close the current popup window after 5000 milliseconds (5 seconds).
     });
+
+    //Paste button tooltip Code
+    chrome.storage.sync.get(['PasteButtonTooltip']).then(data => {
+      if(data.PasteButtonTooltip !== "off")
+        Paste.addEventListener('mouseenter', () => PasteButton_toolTip(data.PasteButtonTooltip))
+    })
+
 });

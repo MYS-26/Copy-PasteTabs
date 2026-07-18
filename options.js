@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
 //-------------------------------------------------------------------------
 
 // ==== Paste Mode ====
-const pasteModesRadios = document.PasteModeForm.PasteModeForm_Radios;
+const pasteModesRadios = document.querySelectorAll('input[name="PasteModeForm_Radios"]')
+
 //Initialize paste mode from storage and update the UI. Defaults to "Smart".
 chrome.storage.sync.get(['PasteMode']).then(
     data => { 
@@ -70,12 +71,42 @@ pasteModesRadios[0].addEventListener('change', function(){
 pasteModesRadios[1].addEventListener('change', function(){
     chrome.storage.sync.set({PasteMode: "Simple"});
 });
+
+//-------------------------------------------------------------------------
+
+// ==== Paste Button Tooltip ====
+
+const pasteButtonTooltipRadio = document.querySelectorAll('input[name="paste-button-tooltip-radio"]');
+
+chrome.storage.sync.get(['PasteButtonTooltip']).then(
+    data => {
+
+        const PasteButtonTooltip = data.PasteButtonTooltip || "off";
+
+        if(PasteButtonTooltip === "off") pasteButtonTooltipRadio[0].checked = true;
+        else if(PasteButtonTooltip === "count") pasteButtonTooltipRadio[1].checked = true;
+        else if(PasteButtonTooltip === "list") pasteButtonTooltipRadio[2].checked = true;
+    });
+
+
+pasteButtonTooltipRadio[0].addEventListener('change', function(){
+    chrome.storage.sync.set({PasteButtonTooltip: "off"});
+});
+
+pasteButtonTooltipRadio[1].addEventListener('change', function(){
+    chrome.storage.sync.set({PasteButtonTooltip: "count"});
+});
+
+pasteButtonTooltipRadio[2].addEventListener('change', function(){
+    chrome.storage.sync.set({PasteButtonTooltip: "list"});
+});
+
 //-------------------------------------------------------------------------
 
 // ==== Copy Format ====
 //Manages copy format settings
-const formatRadio = document.copyFormatForm.Copy_Format_Radios;
-const formatForm = document.forms['copyFormatForm'];
+const formatRadio = document.querySelectorAll('input[name="Copy_Format_Radios"]');
+const formatForm = document.querySelector('form[name="copyFormatForm"]');
 const customWell = document.getElementById('customFormatWell');
 
 //Initialize copy format from storage and update the UI. Defaults to "URLs".
@@ -140,8 +171,3 @@ const saveCustomTemplate = debounce((textInput) => {
 customWell.addEventListener('input', function(event) {
     saveCustomTemplate(event.target.value);
 });
-
-/*
-customWell.addEventListener('change', function(event) {
-    chrome.storage.sync.set({CustomTemplate: event.target.value})
-});*/
