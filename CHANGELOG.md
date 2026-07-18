@@ -1,4 +1,9 @@
 # Changelog
+## [2.6.0]
+### Added
+- Paste button tooltip that previews the number of URLs or a list of URLs in the clipboard.
+- Ctrl shortcut to toggle the "Copy only selected tabs" setting.
+
 ## [2.5.1]
 ### Fixed
 - a bug in the helper function decodeIfNeeded inside the function formatURLs() where URLs that have non-UTF-8 characters will throw a URIError: malformed URI error and halt the program.
