@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //Paste button tooltip Code
     chrome.storage.sync.get(['PasteButtonTooltip']).then(data => {
-      if(data.PasteButtonTooltip !== "off")
+      if(data.PasteButtonTooltip === "count" || data.PasteButtonTooltip === "list")
         Paste.addEventListener('mouseenter', () => PasteButton_toolTip(data.PasteButtonTooltip))
     })
 
